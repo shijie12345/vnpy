@@ -28,11 +28,11 @@ DB_CONFIG = {
     "charset": "utf8mb4",
 }
 
-# Tushare 交易所代码 → vnpy Exchange 枚举值
+# Tushare ts_code 后缀（2字母）→ vnpy Exchange 枚举值
 EXCHANGE_MAP = {
-    "SSE": "SSE",
-    "SZSE": "SZSE",
-    "BSE": "BSE",
+    "SH": "SSE",      # 上海证券交易所
+    "SZ": "SZSE",     # 深圳证券交易所
+    "BJ": "BSE",      # 北京证券交易所
 }
 
 BATCH_SIZE = 500
