@@ -7,6 +7,43 @@ vnpy 启动脚本
   - 菜单栏「系统 → 同步行情数据」可手动触发同步
 """
 
+import importlib
+import os
+
+
+# ============================================================
+# 兼容性补丁（自动修复已安装包中的已知兼容性问题）
+# ============================================================
+def _apply_patches():
+    """启动时自动修补 venv 中已安装包的兼容性问题"""
+
+    # 补丁 1: pandas 3.x + pyqtgraph 兼容
+    # pyqtgraph 用整数索引访问 pandas Series，当索引是 datetime 类型时会报 KeyError
+    try:
+        mod = importlib.import_module("vnpy_ctabacktester.ui.widget")
+        filepath = mod.__file__
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        old = 'self.balance_curve.setData(df["balance"])'
+        new = 'self.balance_curve.setData(df["balance"].values)'
+
+        if old in content:
+            content = content.replace(old, new)
+            content = content.replace(
+                'self.drawdown_curve.setData(df["drawdown"])',
+                'self.drawdown_curve.setData(df["drawdown"].values)',
+            )
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"[补丁] 已修复 pandas 3.x 兼容问题: {os.path.basename(filepath)}")
+    except Exception:
+        pass
+
+
+_apply_patches()
+
+
 from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
