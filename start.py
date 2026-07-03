@@ -11,7 +11,8 @@ from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
 
-from PySide6.QtWidgets import QAction, QDialog, QVBoxLayout, QLabel, QProgressBar, QMessageBox
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar, QMessageBox
+from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QThread, Signal
 from sync_tushare import TushareSyncer, SyncResult
 
