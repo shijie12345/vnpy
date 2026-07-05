@@ -253,10 +253,12 @@ def main():
     qapp = create_qapp()
     qapp.setStyle("Fusion")
 
-    # 确保 F:\system\vnpy 在 sys.path，自定义策略目录才能被 import
+    # 确保 F:\system\vnpy 在 sys.path 且为工作目录（策略重载依赖 Path.cwd()）
     import sys
+    import os
     from pathlib import Path
     _script_dir = str(Path(__file__).resolve().parent)
+    os.chdir(_script_dir)
     if _script_dir not in sys.path:
         sys.path.insert(0, _script_dir)
 
