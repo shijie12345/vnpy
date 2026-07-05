@@ -5,7 +5,7 @@
 写入 MySQL trading_signals 表，供 Java 交易系统读取执行。
 
 用法：
-    将此文件放入 F:\system\vnpy\strategies\
+    将此文件放入 F:/system/vnpy/strategies/
     vnpy 启动时会自动扫描并注册此策略。
 """
 

@@ -253,6 +253,13 @@ def main():
     qapp = create_qapp()
     qapp.setStyle("Fusion")
 
+    # 确保脚本所在目录能被 import（自定义策略目录依赖 sys.path）
+    import sys
+    from pathlib import Path
+    _script_dir = str(Path(__file__).resolve().parent)
+    if _script_dir not in sys.path:
+        sys.path.insert(0, _script_dir)
+
     event_engine = EventEngine()
     main_engine = MainEngine(event_engine)
 
@@ -267,12 +274,6 @@ def main():
 
     # 加载信号桥接引擎
     main_engine.add_engine(SignalBridgeEngine)
-
-    # 显式加载自定义策略目录（解决 Path.cwd() 不确定的问题）
-    from pathlib import Path
-    cta_engine = main_engine.get_engine("CtaStrategy")
-    custom_strategy_path = Path(__file__).parent.joinpath("strategies")
-    cta_engine.load_strategy_class_from_folder(custom_strategy_path)
 
     # 启动时自动增量同步（后台线程 + 进度对话框）
     print("正在检查行情数据更新...")
