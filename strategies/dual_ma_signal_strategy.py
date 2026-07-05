@@ -10,10 +10,11 @@
 
 from vnpy.trader.constant import Interval
 from vnpy_ctastrategy import CtaTemplate, BarData, ArrayManager
+from vnpy_ctastrategy.base import EngineType
 
 
 class DualMaSignalStrategy(CtaTemplate):
-    """双均线日线策略 — 信号写 MySQL，Java 系统执行"""
+    """双均线日线策略 — CTA模式写MySQL，回测模式正常交易"""
 
     author = "SignalBridge Demo"
     fast_window: int = 10
@@ -68,6 +69,16 @@ class DualMaSignalStrategy(CtaTemplate):
         self.put_event()
 
     def _emit(self, direction: str, signal_type: str, bar: BarData):
+        """回测模式下真实下单；CTA实盘/模拟模式下写信号到 MySQL"""
+        if self.get_engine_type() == EngineType.BACKTESTING:
+            # 回测：让 vnpy 按开平仓模拟成交
+            if direction == "BUY":
+                self.buy(bar.close_price, 100)
+            else:
+                self.short(bar.close_price, 100)
+            return
+
+        # CTA 实盘/模拟：写信号到 MySQL
         if self.bridge is None:
             self.write_log("SignalBridge 未加载，跳过")
             return
