@@ -52,6 +52,7 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar, QMessa
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QThread, Signal
 from sync_tushare import TushareSyncer, SyncResult
+from vnpy.trader.signal_bridge import SignalBridgeEngine
 
 # ============================================================
 # 交易网关（按需取消注释，需先 pip install 对应插件）
@@ -263,6 +264,15 @@ def main():
     main_engine.add_app(CtaStrategyApp)
     main_engine.add_app(CtaBacktesterApp)
     # main_engine.add_app(DataManagerApp)
+
+    # 加载信号桥接引擎
+    main_engine.add_engine(SignalBridgeEngine)
+
+    # 显式加载自定义策略目录（解决 Path.cwd() 不确定的问题）
+    from pathlib import Path
+    cta_engine = main_engine.get_engine("CtaStrategy")
+    custom_strategy_path = Path(__file__).parent.joinpath("strategies")
+    cta_engine.load_strategy_class_from_folder(custom_strategy_path)
 
     # 启动时自动增量同步（后台线程 + 进度对话框）
     print("正在检查行情数据更新...")

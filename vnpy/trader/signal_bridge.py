@@ -4,17 +4,17 @@ Signal Bridge Engine — 信号桥接引擎
 将 vnpy 策略产生的交易信号写入 MySQL trading_signals 表，
 供 Java 交易系统读取并执行（风控 → 下单 → 持仓管理）。
 
-两种使用模式（同时生效）：
+两种模式（同时生效）：
 
-模式A — 策略主动调用：
-    bridge = self.cta_engine.main_engine.get_engine("signal_bridge")
-    bridge.write_signal(...)
+模式B'（推荐，无需网关）— 策略直接调用 write_signal()：
+    在策略的 on_bar() 中加 3 行：
+        bridge = self.cta_engine.main_engine.get_engine("signal_bridge")
+        bridge.write_signal(vt_symbol=..., direction=..., signal_type=..., price=..., volume=...)
+    策略代码仅需微调，不依赖券商网关。
 
-模式B — 自动监听引擎事件（默认启用）：
-    vnpy 内置策略正常调用 self.buy()/self.sell()
-    → 事件引擎广播 EVENT_ORDER
-    → SignalBridge 自动捕获并写入 MySQL
-    → 策略代码零改动
+模式B（可选，需要网关）— 自动监听 EVENT_ORDER：
+    vnpy 策略调用 self.buy()/self.sell() → 网关回报 → 事件引擎广播 → 自动写入 MySQL
+    策略代码完全零改动，但必须连接实盘/模拟盘网关。
 """
 
 import logging
@@ -64,12 +64,13 @@ class SignalBridgeEngine(BaseEngine):
     """
     信号桥接引擎。
 
-    模式B（自动监听）：
-        监听 EVENT_ORDER，任何策略调用 self.buy()/self.sell() 时，
-        自动将订单信息转为信号写入 MySQL。策略代码零改动。
+    模式B'（推荐，无需网关）：
+        策略直接调用 bridge.write_signal() 写入 MySQL。
+        示例见 dual_ma_signal_strategy.py。
 
-    模式A（主动调用）：
-        策略也可直接调用 write_signal() 写入自定义字段。
+    模式B（可选，需要网关）：
+        监听 EVENT_ORDER，自动捕获策略 self.buy()/self.sell() 的订单信号。
+        策略代码零改动，但必须连接券商网关。
     """
 
     # MySQL 连接配置（与 Java 系统 application.yml 一致）
