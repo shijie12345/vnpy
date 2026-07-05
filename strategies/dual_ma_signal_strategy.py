@@ -26,7 +26,11 @@ class DualMaSignalStrategy(CtaTemplate):
     def __init__(self, cta_engine, strategy_name, vt_symbol, setting):
         super().__init__(cta_engine, strategy_name, vt_symbol, setting)
         self.am = ArrayManager()
-        self.bridge = cta_engine.main_engine.get_engine("signal_bridge")
+        # SignalBridge 仅在 CTA策略（实盘/模拟）模式下可用，回测模式下不存在
+        try:
+            self.bridge = cta_engine.main_engine.get_engine("signal_bridge")
+        except AttributeError:
+            self.bridge = None
 
     def on_init(self):
         self.write_log("策略初始化，从数据库加载日线...")
