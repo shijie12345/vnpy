@@ -283,6 +283,14 @@ def main():
     cta_engine.load_strategy_class_from_folder(custom_strategy_path, "strategies")
     backtester_engine.load_strategy_class_from_folder(custom_strategy_path, "strategies")
 
+    # monkey-patch 策略重载（仅 CTA回测 有此按钮，CTA策略无需）
+    if hasattr(backtester_engine, "reload_strategy_class"):
+        _orig_reload = backtester_engine.reload_strategy_class
+        def _patched_reload(_orig=_orig_reload):
+            _orig()
+            backtester_engine.load_strategy_class_from_folder(custom_strategy_path, "strategies")
+        backtester_engine.reload_strategy_class = _patched_reload
+
     # 启动时自动增量同步（后台线程 + 进度对话框）
     print("正在检查行情数据更新...")
     sync_result = _startup_sync(qapp)
