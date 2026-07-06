@@ -197,7 +197,8 @@ class TushareSyncer:
                     datetime.strptime(last, "%Y%m%d") + timedelta(days=1)
                 ).strftime("%Y%m%d")
             else:
-                start_date = "20260101"
+                #数据导入时间，通过显示指定时间执行导入，D:\vnpy\venv\Scripts\python.exe D:\vnpy\sync_tushare.py 20250101 20260703
+                start_date = "20250101"
 
         start_dt = datetime.strptime(start_date, "%Y%m%d")
         end_dt = datetime.strptime(end_date, "%Y%m%d")
